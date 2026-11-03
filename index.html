@@ -53,6 +53,18 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* AI 對話：等待中的動畫點 */
+        .chat-dots::after {
+            content: '';
+            animation: chatDots 1.2s steps(4, end) infinite;
+        }
+        @keyframes chatDots {
+            0%   { content: ''; }
+            25%  { content: '・'; }
+            50%  { content: '・・'; }
+            75%  { content: '・・・'; }
+        }
+
         @media (max-width: 767px) {
             /* iOS 聚焦輸入框時若字級 <16px 會自動放大整頁 */
             .glass-input, textarea { font-size: 16px; }
@@ -228,6 +240,9 @@
                 <button onclick="switchTab('tab-expressions')" id="nav-expressions" class="tab-btn w-auto md:w-full whitespace-nowrap shrink-0 text-left px-4 py-2 md:py-3 rounded-xl text-gray-700 hover:bg-white/50 flex items-center gap-2 md:gap-3">
                     <i class="fa-solid fa-wand-magic-sparkles text-brand"></i> 五感魔法棒
                 </button>
+                <button onclick="switchTab('tab-chat')" id="nav-chat" class="tab-btn w-auto md:w-full whitespace-nowrap shrink-0 text-left px-4 py-2 md:py-3 rounded-xl text-gray-700 hover:bg-white/50 flex items-center gap-2 md:gap-3">
+                    <i class="fa-solid fa-comments text-blue-500"></i> AI 對話
+                </button>
                 <button onclick="switchTab('tab-notebook')" id="nav-notebook" class="tab-btn w-auto md:w-full whitespace-nowrap shrink-0 text-left px-4 py-2 md:py-3 rounded-xl text-gray-700 hover:bg-white/50 flex items-center gap-2 md:gap-3 md:mt-auto">
                     <i class="fa-solid fa-book text-mint-dark"></i> 我的筆記本
                 </button>
@@ -269,12 +284,12 @@
                 <h2 class="text-2xl font-bold mb-2 flex items-center gap-2 text-brand-dark">
                     <i class="fa-solid fa-check-double"></i> 句子小診所
                 </h2>
-                <p class="text-gray-600 mb-6">輸入句子，AI 幫你檢查有沒有語病，還可以變換成「把字句」或「被字句」！</p>
+                <p class="text-gray-600 mb-6">輸入句子，AI 會幫你檢查語病、給出修訂版，再用「優點／可改進／建議」給你點評。</p>
                 
                 <textarea id="sentence-input" placeholder="例如：我把功課做完了。 / 昨天，我很高興地去公園玩耍在。" class="glass-input w-full rounded-xl px-4 py-3 text-lg mb-4 resize-none h-24"></textarea>
                 
                 <button onclick="analyzeSentence()" id="btn-sentence" class="glass-button w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 mb-6">
-                    <i class="fa-solid fa-stethoscope"></i> 檢查並變換句式
+                    <i class="fa-solid fa-stethoscope"></i> 檢查・修訂・點評
                 </button>
 
                 <div id="sentence-result-container" class="hidden flex-grow flex flex-col">
@@ -310,7 +325,33 @@
                 </div>
             </div>
 
-            <!-- Module 4: Notebook -->
+            <!-- Module 4: AI 對話 -->
+            <div id="tab-chat" class="tab-content hidden md:h-full flex flex-col">
+                <h2 class="text-2xl font-bold mb-2 flex items-center gap-2 text-brand-dark">
+                    <i class="fa-solid fa-comments"></i> AI 對話
+                </h2>
+                <p class="text-gray-600 mb-4">用中文或 English 都可以。小作家不會直接給你答案，而是用問題一步步帶你想出寫法。</p>
+
+                <div id="chat-messages" class="flex-grow min-h-[260px] max-h-[50vh] md:max-h-none overflow-auto bg-white/40 rounded-xl p-4 mb-3 flex flex-col gap-3">
+                    <!-- 對話訊息由 JS 注入 -->
+                </div>
+
+                <div class="flex gap-2 mb-2 overflow-x-auto no-scrollbar pb-1">
+                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">作文開頭可以怎樣寫？</button>
+                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">這句為什麼不通順？</button>
+                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">How can I describe a rainy day?</button>
+                    <button onclick="clearChat()" class="ml-auto text-xs text-gray-500 hover:text-red-500 shrink-0 px-2">清空</button>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-2">
+                    <textarea id="chat-input" rows="2" placeholder="輸入中文或 English…" class="glass-input w-full rounded-xl px-4 py-3 text-base resize-none" onkeydown="handleChatKey(event)"></textarea>
+                    <button onclick="sendChat()" id="btn-chat" class="glass-button w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> 傳送
+                    </button>
+                </div>
+            </div>
+
+            <!-- Module 5: Notebook -->
             <div id="tab-notebook" class="tab-content hidden md:h-full flex flex-col">
                 <h2 class="text-2xl font-bold mb-2 flex items-center gap-2 text-mint-dark">
                     <i class="fa-solid fa-book"></i> 我的筆記本
@@ -519,6 +560,7 @@
             usageStats = loadStats();
             renderStats();
             renderModelLabel();
+            renderChat();
             flushStats(); // 補送上次未成功上傳的記錄
         }
 
@@ -571,13 +613,19 @@
         }
 
         // 豆包（火山方舟 Ark）Chat Completions 呼叫
-        async function callAI(prompt, systemInstruction) {
+        const LANGUAGE_RULE = '\n\n語言要求：一律使用規範的現代漢語書面語（普通話），以繁體字輸出，逐字檢查，禁止出現簡體字。嚴禁粵語口語詞與粵語語法，例如「唔、嘅、咗、啲、喺、係、咁、乜、嗰、嚟、睇、畀、俾、晒、哋、好正、搞掂、成個人」等一律不可使用；香港地名、人名、食物等專有名詞可保留。除了指定格式之外，不要輸出任何說明、評語或客套話。';
+
+        async function callAI(prompt, systemInstruction, opts = {}) {
             const cfg = ensureDoubaoConfig();
             if (!cfg) {
                 const err = new Error('NO_KEY');
                 err.code = 'NO_KEY';
                 throw err;
             }
+
+            const messages = [{ role: 'system', content: systemInstruction + (opts.skipLanguageRule ? '' : LANGUAGE_RULE) }];
+            if (opts.history) messages.push(...opts.history);
+            messages.push({ role: 'user', content: prompt });
 
             try {
                 const response = await fetch(cfg.baseUrl, {
@@ -589,10 +637,7 @@
                     body: JSON.stringify({
                         model: cfg.model,
                         thinking: { type: 'disabled' },
-                        messages: [
-                            { role: 'system', content: `${systemInstruction}\n\n語言要求：一律使用規範的現代漢語書面語（普通話），以繁體字輸出，逐字檢查，禁止出現簡體字。嚴禁粵語口語詞與粵語語法，例如「唔、嘅、咗、啲、喺、係、咁、乜、嗰、嚟、睇、畀、俾、晒、哋、好正、搞掂、成個人」等一律不可使用；香港地名、人名、食物等專有名詞可保留。除了指定格式之外，不要輸出任何說明、評語或客套話。` },
-                            { role: 'user', content: prompt }
-                        ],
+                        messages: messages,
                         temperature: 0.7
                     })
                 });
@@ -614,6 +659,66 @@
             }
         }
 
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+                { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+            ));
+        }
+
+        // 詞語結果：情緒詞以 emoji ＋ 解釋卡片呈現，其他類型維持詞語標籤
+        function renderWordResult(result) {
+            const el = document.getElementById('word-result-text');
+            if (!result.includes('｜')) {
+                el.innerText = result;
+                return;
+            }
+            const rows = result.split('\n').map(l => l.trim()).filter(Boolean).map(line => {
+                const parts = line.split('｜');
+                const head = parts.shift().trim();
+                const desc = parts.join('｜').trim();
+                const tokens = head.split(/\s+/);
+                const emoji = tokens.length > 1 && /\p{Extended_Pictographic}/u.test(tokens[0])
+                    ? tokens.shift() : '';
+                return { emoji, word: tokens.join(' ').trim(), desc };
+            });
+            el.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">` + rows.map(r => `
+                <div class="flex items-start gap-3 bg-white/70 rounded-xl p-3 border border-white/70">
+                    <span class="text-3xl leading-none shrink-0">${escapeHtml(r.emoji)}</span>
+                    <div class="min-w-0">
+                        <div class="font-bold text-gray-800">${escapeHtml(r.word)}</div>
+                        <div class="text-sm text-gray-600 leading-relaxed">${escapeHtml(r.desc)}</div>
+                    </div>
+                </div>`).join('') + `</div>`;
+        }
+
+        // 句子結果：【診斷】／【修訂】／【點評】三段卡片
+        function renderSentenceResult(result) {
+            const el = document.getElementById('sentence-result-text');
+            const parts = result.split(/【(診斷|修訂|點評)】/);
+            if (parts.length < 3) {
+                el.innerText = result;
+                return;
+            }
+            const icons = {
+                '診斷': 'fa-stethoscope text-orange-500',
+                '修訂': 'fa-pen-to-square text-brand',
+                '點評': 'fa-comment-dots text-purple-500'
+            };
+            let html = '<div class="flex flex-col gap-3">';
+            for (let i = 1; i < parts.length; i += 2) {
+                const title = parts[i];
+                const body = (parts[i + 1] || '').trim();
+                html += `
+                <div class="bg-white/70 rounded-xl p-4 border border-white/70">
+                    <div class="flex items-center gap-2 mb-2 font-bold text-gray-700">
+                        <i class="fa-solid ${icons[title] || 'fa-circle-dot'}"></i> ${title}
+                    </div>
+                    <div class="text-base leading-relaxed text-gray-800 whitespace-pre-wrap">${escapeHtml(body)}</div>
+                </div>`;
+            }
+            el.innerHTML = html + '</div>';
+        }
+
         // Module 1: Words
         window.analyzeWord = async () => {
             const input = document.getElementById('word-input').value.trim();
@@ -628,23 +733,29 @@
 
 先判斷學生輸入的詞語屬於哪一類：
 - 名詞（如「海邊」「操場」）：給 5 個寫作文時用得上的聯想詞——相關的事物、景物、動作或聲音。
-- 形容詞或情感詞（如「高興」「美麗」）：給 5 個意思相近但語感略有不同的詞，由淺入深。
 - 動詞（如「跑」「看」）：給 5 個更精確、更有畫面的表達方式。
+- 形容詞或情緒／感受詞（如「高興」「傷心」「緊張」「害怕」）：給 5 個意思相近但程度或情境不同的詞，由淺入深。
+
+輸出格式（必須嚴格遵守）：
+- 一般詞語：只輸出 5 個詞，用頓號（、）分隔，不要編號、不要解釋、不要加句號。
+- 情緒／感受詞：改為輸出 5 行，每行格式為「<emoji> <詞語>｜<15 字以內的解釋>」。解釋要講清楚這個詞的程度、使用情境，或它與相近詞的分別。例子：
+😄 愉快｜心情輕鬆，程度比「高興」輕一點
+🥳 雀躍｜興奮得想跳起來，好事發生時用
+😤 氣憤｜又怒又不服氣，多用於受到不公平對待
+- emoji 要貼切、常見，不要用生僻或拼組 emoji；每個詞的 emoji 不可重複。
 
 選詞原則：
 - 小四至中一學生看得懂、作文裡真的會用。
 - 必須是現代漢語書面語的通用詞，不要粵語口語詞（如「好正」「搞掂」「唔該」）。
 - 避免文言腔、成語堆砌和生僻字。
-- 5 個詞不可意思重複。
-
-只輸出這 5 個詞，用頓號（、）分隔。不要編號、不要解釋、不要加句號。`;
+- 5 個詞不可意思重複。`;
             
             const startedAt = Date.now();
             try {
                 const result = await callAI(`學生輸入：${input}`, systemPrompt);
                 
                 currentGeneratedContent.word = { input, result };
-                document.getElementById('word-result-text').innerText = result;
+                renderWordResult(result);
                 document.getElementById('word-result-container').classList.remove('hidden');
                 logUsage('word', true, Date.now() - startedAt, input, result);
                 
@@ -664,31 +775,35 @@
                 return;
             }
 
-            setLoading('btn-sentence', true, '<i class="fa-solid fa-stethoscope"></i> 檢查並變換句式');
+            setLoading('btn-sentence', true, '<i class="fa-solid fa-stethoscope"></i> 檢查・修訂・點評');
             
-            const systemPrompt = `你是香港小學中文科的句子批改老師。學生會輸入一句中文，可能是通順的，也可能有語病。請按以下格式輸出，不要加任何解釋、評語或客套話。
+            const systemPrompt = `你是香港小學中文科的句子批改老師。學生會輸入一句中文，可能是通順的，也可能有語病。請完成「檢查、修訂、點評」三步，並嚴格按以下格式輸出（三個標題必須一字不差，不可增加其他段落或客套話）。
 
-第一行只輸出下列其中一句，句首不要加「句子通順」「判斷結果」之類的標籤：
-- 完全正確，就輸出：✅ 語法正確
-- 有語病，就輸出：❌ 錯誤。建議改為：<改正後的原句>
+【診斷】
+用一句話指出句子是否通順、問題在哪裡、為什麼是問題；若完全正確，寫「✅ 語法正確，句子通順。」並簡述它好在哪裡。
 
-之後每行一項（只在原句可以自然改寫時才寫，否則整行省略）：
-把字句：<改寫句>
-被字句：<改寫句>
+【修訂】
+寫出修訂後的句子，只寫句子本身。保留原意，只改動真正有問題的地方，不要趁機把句子寫得更華麗。若原句正確，寫「無需修訂。」
+若句子可以自然改寫，可用另一行各寫一句「把字句：…」與「被字句：…」，但不可硬造。
+
+【點評】
+按以下三行輸出：
+優點：<一句，指出這句好在哪裡，即使是小優點>
+可改進：<一句，指出可以提升的地方>
+建議：<一句，給學生一個具體可行的下一步或練習方向>
 
 要求：
-- 改正時保留原意，只改動真正有問題的地方，不要趁機把句子改寫得更華麗。
-- 改正後的句子要是規範的現代漢語書面語，讀起來通順自然；即使原句正確，也不要改成粵語口語。
-- 若學生原句含粵語口語或方言（如「我唔知」「佢走咗」），改正時一併轉為書面語。
-- 把字句、被字句要符合香港小學課本教的結構，不要硬造。
-- 不要輸出簡體字。`;
+- 全部使用規範的現代漢語書面語，繁體字，不要簡體字、不要粵語口語。
+- 若學生原句含粵語口語或方言（如「我唔知」「佢走咗」），診斷時先說明，修訂時轉為書面語。
+- 點評要具體、溫和、對小四至中一學生說得明白，不要空泛讚美。
+- 把字句、被字句要符合香港小學課本教的結構。`;
             
             const startedAt = Date.now();
             try {
                 const result = await callAI(`學生句子：${input}`, systemPrompt);
                 
                 currentGeneratedContent.sentence = { input, result };
-                document.getElementById('sentence-result-text').innerText = result;
+                renderSentenceResult(result);
                 document.getElementById('sentence-result-container').classList.remove('hidden');
                 logUsage('sentence', true, Date.now() - startedAt, input, result);
                 
@@ -696,7 +811,7 @@
                 logUsage('sentence', false, Date.now() - startedAt, input, '');
                 showToast(e && e.code === 'NO_KEY' ? '未設定 API Key，已取消' : `AI 錯誤：${(e && e.message) || '請重試'}`, 'error');
             } finally {
-                setLoading('btn-sentence', false, '<i class="fa-solid fa-stethoscope"></i> 檢查並變換句式');
+                setLoading('btn-sentence', false, '<i class="fa-solid fa-stethoscope"></i> 檢查・修訂・點評');
             }
         };
 
@@ -736,6 +851,113 @@
                 showToast(e && e.code === 'NO_KEY' ? '未設定 API Key，已取消' : `AI 錯誤：${(e && e.message) || '請重試'}`, 'error');
             } finally {
                 setLoading('btn-expression', false, '<i class="fa-solid fa-wand-sparkles"></i> 施展文字魔法');
+            }
+        };
+
+        // Module 4: AI 對話（中英雙語、引導式）
+        let chatHistory = [];
+        let chatBusy = false;
+
+        const CHAT_SYSTEM = `你是「小作家」——一位親切、有幽默感的中文寫作教練，對象是小四至中一的香港學生。你的任務不是替學生寫答案，而是用提問、示範和提示，一步一步引導他們自己想出更好的寫法。
+
+對話規則：
+- 語言：學生用中文問，就用繁體中文回答；學生用英文問，就用英文回答；混用時跟隨對方的主要語言。中文一律用規範的現代漢語書面語，繁體字，不要粵語口語（如「唔、嘅、咗、啲、喺、係、咁」）；英文用自然、簡潔的標準英語。
+- 語氣：像真人老師聊天，生動、溫暖、有點幽默，可用少量表情符號，但不要濫用。
+- 長度：中文回覆不超過 120 字，英文不超過 80 字。
+- 每次回覆結尾一定要問一條能推動思考的問題，讓對話繼續。
+- 不直接給完整作文或整段答案；需要示範時只給一句簡短例子，然後把問題丟回給學生。
+- 學生說「不知道」時，先給二選一或更具體的提示，不要重複同一條問題。
+- 若學生的句子有語病或用粵語口語，先溫和指出問題所在，再問他打算怎樣改，不要直接代改。
+- 不要輸出格式標籤或多餘的前言，直接開始對話。`;
+
+        function renderChat() {
+            const box = document.getElementById('chat-messages');
+            if (!box) return;
+
+            if (!chatHistory.length) {
+                box.innerHTML = `
+                    <div class="text-gray-500 text-sm text-center mt-6 leading-relaxed">
+                        試試問我：<br>
+                        「作文開頭可以怎樣寫？」<br>
+                        「這句為什麼不通順？」<br>
+                        「How can I describe a rainy day?」
+                    </div>`;
+                return;
+            }
+
+            box.innerHTML = chatHistory.map(m => {
+                const isUser = m.role === 'user';
+                return `
+                <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
+                        ${isUser ? 'bg-brand text-white rounded-br-md' : 'bg-white/85 text-gray-800 rounded-bl-md border border-white/70'}">
+                        ${escapeHtml(m.content)}
+                    </div>
+                </div>`;
+            }).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function showChatTyping() {
+            const box = document.getElementById('chat-messages');
+            box.insertAdjacentHTML('beforeend', `
+                <div id="chat-typing" class="flex justify-start">
+                    <div class="bg-white/85 text-gray-500 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm border border-white/70">
+                        小作家正在想<span class="chat-dots"></span>
+                    </div>
+                </div>`);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        window.handleChatKey = (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+                e.preventDefault();
+                window.sendChat();
+            }
+        };
+
+        window.chatChip = (btn) => {
+            if (chatBusy) return;
+            document.getElementById('chat-input').value = btn.innerText.trim();
+            window.sendChat();
+        };
+
+        window.clearChat = () => {
+            chatHistory = [];
+            renderChat();
+            showToast('對話已清空');
+        };
+
+        window.sendChat = async () => {
+            if (chatBusy) return;
+            const inputEl = document.getElementById('chat-input');
+            const input = inputEl.value.trim();
+            if (!input) {
+                showToast('請先輸入內容', 'error');
+                return;
+            }
+
+            chatBusy = true;
+            chatHistory.push({ role: 'user', content: input });
+            inputEl.value = '';
+            renderChat();
+            showChatTyping();
+
+            setLoading('btn-chat', true, '<i class="fa-solid fa-paper-plane"></i> 傳送');
+            const startedAt = Date.now();
+
+            try {
+                const prior = chatHistory.slice(0, -1).slice(-10);
+                const reply = await callAI(input, CHAT_SYSTEM, { history: prior, skipLanguageRule: true });
+                chatHistory.push({ role: 'assistant', content: reply });
+                logUsage('chat', true, Date.now() - startedAt, input, reply);
+            } catch (e) {
+                logUsage('chat', false, Date.now() - startedAt, input, '');
+                showToast(e && e.code === 'NO_KEY' ? '未設定 API Key，已取消' : `AI 錯誤：${(e && e.message) || '請重試'}`, 'error');
+            } finally {
+                chatBusy = false;
+                setLoading('btn-chat', false, '<i class="fa-solid fa-paper-plane"></i> 傳送');
+                renderChat();
             }
         };
 
