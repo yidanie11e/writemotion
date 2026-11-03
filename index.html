@@ -333,7 +333,7 @@
                     </h2>
                     <button onclick="clearChat()" class="text-xs text-gray-500 hover:text-red-500 shrink-0 mt-1">清空對話</button>
                 </div>
-                <p class="text-gray-600 mb-4">用中文或 English 都可以。小作家不會直接給你答案，而是用問題一步步帶你想出寫法。</p>
+                <p class="text-gray-600 mb-4">用中文或 English 都可以。writemo 不會直接給你答案，而是用問題一步步帶你想出寫法。</p>
 
                 <div id="chat-messages" class="flex-grow min-h-[260px] max-h-[50vh] md:max-h-none overflow-auto bg-white/40 rounded-xl p-4 mb-3 flex flex-col gap-3">
                     <!-- 對話訊息由 JS 注入 -->
@@ -860,7 +860,7 @@
         let chatHistory = [];
         let chatBusy = false;
 
-        const CHAT_SYSTEM = `你是「小作家」——一位親切、有幽默感的中文寫作教練，對象是小四至中一的香港學生。你的任務不是替學生寫答案，而是用提問、示範和提示，一步一步引導他們自己想出更好的寫法。
+        const CHAT_SYSTEM = `你是「writemo」——一位親切、有幽默感的中文寫作教練，對象是小四至中一的香港學生。你的任務不是替學生寫答案，而是用提問、示範和提示，一步一步引導他們自己想出更好的寫法。
 
 對話規則：
 - 語言：學生用中文問，就用繁體中文回答；學生用英文問，就用英文回答；混用時跟隨對方的主要語言。中文一律用規範的現代漢語書面語，繁體字，不要粵語口語（如「唔、嘅、咗、啲、喺、係、咁」）；英文用自然、簡潔的標準英語。
@@ -905,7 +905,7 @@
             box.insertAdjacentHTML('beforeend', `
                 <div id="chat-typing" class="flex justify-start">
                     <div class="bg-white/85 text-gray-500 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm border border-white/70">
-                        小作家正在想<span class="chat-dots"></span>
+                        writemo 正在想<span class="chat-dots"></span>
                     </div>
                 </div>`);
             box.scrollTop = box.scrollHeight;
