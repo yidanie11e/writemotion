@@ -53,6 +53,33 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* 英文輔助（非華語學生）：中文下方的小字英文 */
+        .en-sub {
+            display: block;
+            font-size: 0.7em;
+            font-weight: 400;
+            color: #94a3b8;
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+        /* 按鈕／標籤內的英文：與中文同一行 */
+        .en-inline {
+            font-size: 0.75em;
+            font-weight: 400;
+            color: #94a3b8;
+            margin-left: 0.35em;
+        }
+        /* AI 回覆中的英文對照 */
+        .en-block {
+            display: block;
+            margin-top: 0.45em;
+            padding-top: 0.45em;
+            border-top: 1px dashed rgba(148, 163, 184, 0.45);
+            font-size: 0.86em;
+            font-style: italic;
+            color: #64748b;
+        }
+
         /* AI 對話：等待中的動畫點 */
         .chat-dots::after {
             content: '';
@@ -191,19 +218,19 @@
             <h3 class="text-lg font-bold mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-gear text-brand"></i> AI 設定
             </h3>
-            <p class="text-xs text-gray-500 mb-4">只保存在這部裝置的瀏覽器，不會上傳。</p>
+            <p class="text-xs text-gray-500 mb-4">只保存在這部裝置的瀏覽器，不會上傳。<span class="en-sub">Stored only in this browser. Never uploaded.</span></p>
 
             <label class="text-sm font-medium">API Key</label>
             <input id="settings-key" type="password" class="glass-input w-full rounded-xl px-4 py-2 mt-1 mb-3" placeholder="ark-...">
 
             <label class="text-sm font-medium">Model / Endpoint ID</label>
-            <input id="settings-model" type="text" class="glass-input w-full rounded-xl px-4 py-2 mt-1 mb-4" placeholder="ep-xxxxxxxx 或模型 ID">
+            <input id="settings-model" type="text" class="glass-input w-full rounded-xl px-4 py-2 mt-1 mb-4" placeholder="ep-xxxxxxxx or model ID">
 
             <div class="flex gap-2">
-                <button onclick="saveSettings()" class="glass-button flex-1 py-2 rounded-xl font-bold">儲存</button>
-                <button onclick="closeSettings()" class="glass-button-secondary flex-1 py-2 rounded-xl font-bold">取消</button>
+                <button onclick="saveSettings()" class="glass-button flex-1 py-2 rounded-xl font-bold">儲存<span class="en-inline">Save</span></button>
+                <button onclick="closeSettings()" class="glass-button-secondary flex-1 py-2 rounded-xl font-bold">取消<span class="en-inline">Cancel</span></button>
             </div>
-            <button onclick="clearSettings()" class="w-full mt-3 text-xs text-red-500 hover:underline">清除已儲存的設定（下次使用時重新輸入）</button>
+            <button onclick="clearSettings()" class="w-full mt-3 text-xs text-red-500 hover:underline">清除已儲存的設定（下次使用時重新輸入）<span class="en-sub">Clear saved settings</span></button>
         </div>
     </div>
 
@@ -218,11 +245,11 @@
                 </div>
                 <div class="min-w-0 flex-1 md:w-full">
                     <h1 class="text-base md:text-xl font-bold text-gray-800 font-rounded">情意綿綿：與AI言情</h1>
-                    <p class="hidden sm:block text-xs md:text-sm text-gray-600">中文寫作輔助</p>
+                    <p class="hidden sm:block text-xs md:text-sm text-gray-600">中文寫作輔助<span class="en-sub">Chinese Writing Assistant</span></p>
                     <div id="user-id-display" class="hidden md:block mt-2 text-xs bg-white/50 py-1 px-2 rounded-lg text-gray-500 truncate"></div>
                     <div id="model-display" class="hidden md:block mt-1 text-xs text-gray-400 truncate"></div>
                     <button onclick="openSettings()" class="hidden md:flex mt-2 text-xs text-gray-500 hover:text-brand items-center justify-center gap-1">
-                        <i class="fa-solid fa-gear"></i> 更換 Key / 模型
+                        <i class="fa-solid fa-gear"></i> 更換 Key / 模型<span class="en-sub">Change Key / Model</span>
                     </button>
                 </div>
                 <button onclick="openSettings()" aria-label="AI 設定" class="md:hidden shrink-0 w-9 h-9 rounded-full bg-white/70 text-gray-600">
@@ -232,22 +259,22 @@
 
             <div class="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-1 md:pb-0 no-scrollbar min-w-0">
                 <button onclick="switchTab('tab-chat')" id="nav-chat" class="tab-btn active w-auto md:w-full whitespace-nowrap shrink-0 text-left px-4 py-2 md:py-3 rounded-xl text-gray-700 hover:bg-white/50 flex items-center gap-2 md:gap-3">
-                    <i class="fa-solid fa-comments text-blue-500"></i> 綿綿言情
+                    <i class="fa-solid fa-comments text-blue-500"></i> <span>綿綿言情<span class="en-sub">Chat with AI</span></span>
                 </button>
                 <button onclick="switchTab('tab-words')" id="nav-words" class="tab-btn w-auto md:w-full whitespace-nowrap shrink-0 text-left px-4 py-2 md:py-3 rounded-xl text-gray-700 hover:bg-white/50 flex items-center gap-2 md:gap-3">
-                    <i class="fa-solid fa-book-open text-brand"></i> 詞語寶箱
+                    <i class="fa-solid fa-book-open text-brand"></i> <span>詞語寶箱<span class="en-sub">Word Treasure Box</span></span>
                 </button>
                 <button onclick="switchTab('tab-sentences')" id="nav-sentences" class="tab-btn w-auto md:w-full whitespace-nowrap shrink-0 text-left px-4 py-2 md:py-3 rounded-xl text-gray-700 hover:bg-white/50 flex items-center gap-2 md:gap-3">
-                    <i class="fa-solid fa-check-double text-brand"></i> 句子診斷
+                    <i class="fa-solid fa-check-double text-brand"></i> <span>句子診斷<span class="en-sub">Sentence Check</span></span>
                 </button>
                 <button onclick="switchTab('tab-expressions')" id="nav-expressions" class="tab-btn w-auto md:w-full whitespace-nowrap shrink-0 text-left px-4 py-2 md:py-3 rounded-xl text-gray-700 hover:bg-white/50 flex items-center gap-2 md:gap-3">
-                    <i class="fa-solid fa-wand-magic-sparkles text-brand"></i> 五感探究
+                    <i class="fa-solid fa-wand-magic-sparkles text-brand"></i> <span>五感探究<span class="en-sub">Five Senses</span></span>
                 </button>
                 <button onclick="switchTab('tab-notebook')" id="nav-notebook" class="tab-btn w-auto md:w-full whitespace-nowrap shrink-0 text-left px-4 py-2 md:py-3 rounded-xl text-gray-700 hover:bg-white/50 flex items-center gap-2 md:gap-3 md:mt-auto">
-                    <i class="fa-solid fa-book text-mint-dark"></i> 我的筆記本
+                    <i class="fa-solid fa-book text-mint-dark"></i> <span>我的筆記本<span class="en-sub">My Notebook</span></span>
                 </button>
                 <button onclick="switchTab('tab-stats')" id="nav-stats" class="tab-btn w-auto md:w-full whitespace-nowrap shrink-0 text-left px-4 py-2 md:py-3 rounded-xl text-gray-700 hover:bg-white/50 flex items-center gap-2 md:gap-3">
-                    <i class="fa-solid fa-chart-line text-purple-500"></i> 使用數據
+                    <i class="fa-solid fa-chart-line text-purple-500"></i> <span>使用數據<span class="en-sub">Usage Data</span></span>
                 </button>
             </div>
         </nav>
@@ -260,12 +287,12 @@
                 <h2 class="text-2xl font-bold mb-2 flex items-center gap-2 text-brand-dark">
                     <i class="fa-solid fa-book-open"></i> 詞語寶箱
                 </h2>
-                <p class="text-gray-600 mb-6">輸入一個你想用的詞語，AI 會幫你找出相關的聯想詞或更豐富的近義詞！</p>
+                <p class="text-gray-600 mb-6">輸入一個你想用的詞語，AI 會幫你找出相關的聯想詞或更豐富的近義詞！<span class="en-sub">Type a word and AI will suggest related words or richer synonyms.</span></p>
                 
                 <div class="flex flex-col md:flex-row md:items-start gap-3 mb-6">
-                    <input type="text" id="word-input" placeholder="例如：海邊、高興、跑..." class="glass-input w-full md:w-1/2 h-16 px-4 text-lg" onkeypress="handleEnter(event, 'word')">
+                    <input type="text" id="word-input" placeholder="例如：海邊、高興、跑… / e.g. beach, happy, run" class="glass-input w-full md:w-1/2 h-16 px-4 text-lg" onkeypress="handleEnter(event, 'word')">
                     <button onclick="analyzeWord()" id="btn-word" class="glass-button w-full md:w-auto h-16 px-6 rounded-xl font-bold flex items-center justify-center gap-2 whitespace-nowrap">
-                        <i class="fa-solid fa-sparkles"></i> 找詞語
+                        <i class="fa-solid fa-sparkles"></i> 找詞語<span class="en-inline">Find Words</span>
                     </button>
                 </div>
 
@@ -274,7 +301,7 @@
                         <div id="word-result-text" class="text-lg leading-relaxed text-gray-800 whitespace-pre-wrap"></div>
                     </div>
                     <button onclick="saveNote('word')" class="glass-button-secondary w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2">
-                        <i class="fa-regular fa-bookmark"></i> 收藏到筆記本
+                        <i class="fa-regular fa-bookmark"></i> 收藏到筆記本<span class="en-inline">Save to Notebook</span>
                     </button>
                 </div>
             </div>
@@ -284,12 +311,12 @@
                 <h2 class="text-2xl font-bold mb-2 flex items-center gap-2 text-brand-dark">
                     <i class="fa-solid fa-check-double"></i> 句子診斷
                 </h2>
-                <p class="text-gray-600 mb-6">輸入句子，AI 會幫你檢查語病、給出修訂版，再用「優點／可改進／建議」給你點評。</p>
+                <p class="text-gray-600 mb-6">輸入句子，AI 會幫你檢查語病、給出修訂版，再用「優點／可改進／建議」給你點評。<span class="en-sub">Enter a sentence: AI checks grammar, rewrites it, then comments with strengths, improvements and tips.</span></p>
                 
-                <textarea id="sentence-input" placeholder="例如：我把功課做完了。 / 昨天，我很高興地去公園玩耍在。" class="glass-input w-full rounded-xl px-4 py-3 text-lg mb-4 resize-none h-24"></textarea>
+                <textarea id="sentence-input" placeholder="例如：我把功課做完了。 / e.g. I finished my homework." class="glass-input w-full rounded-xl px-4 py-3 text-lg mb-4 resize-none h-24"></textarea>
                 
                 <button onclick="analyzeSentence()" id="btn-sentence" class="glass-button w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 mb-6">
-                    <i class="fa-solid fa-stethoscope"></i> 檢查・修訂・點評
+                    <i class="fa-solid fa-stethoscope"></i> 檢查・修訂・點評<span class="en-inline">Check · Revise · Comment</span>
                 </button>
 
                 <div id="sentence-result-container" class="hidden flex-grow flex flex-col">
@@ -297,7 +324,7 @@
                         <div id="sentence-result-text" class="text-lg leading-relaxed text-gray-800 whitespace-pre-wrap"></div>
                     </div>
                     <button onclick="saveNote('sentence')" class="glass-button-secondary w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2">
-                        <i class="fa-regular fa-bookmark"></i> 收藏句子
+                        <i class="fa-regular fa-bookmark"></i> 收藏句子<span class="en-inline">Save Sentence</span>
                     </button>
                 </div>
             </div>
@@ -307,12 +334,12 @@
                 <h2 class="text-2xl font-bold mb-2 flex items-center gap-2 text-brand-dark">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> 五感探究
                 </h2>
-                <p class="text-gray-600 mb-6">輸入簡單的句子，AI 會加入視覺、聽覺等「五感描寫」，讓你的文章更生動！</p>
+                <p class="text-gray-600 mb-6">輸入簡單的句子，AI 會加入視覺、聽覺等「五感描寫」，讓你的文章更生動！<span class="en-sub">Enter a simple sentence; AI adds sight, sound and other sensory details to make it vivid.</span></p>
                 
-                <textarea id="expression-input" placeholder="例如：今天天氣很好。 / 媽媽煮的菜很好吃。" class="glass-input w-full rounded-xl px-4 py-3 text-lg mb-4 resize-none h-24"></textarea>
+                <textarea id="expression-input" placeholder="例如：今天天氣很好。 / e.g. The weather is lovely today." class="glass-input w-full rounded-xl px-4 py-3 text-lg mb-4 resize-none h-24"></textarea>
                 
                 <button onclick="analyzeExpression()" id="btn-expression" class="glass-button w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 mb-6">
-                    <i class="fa-solid fa-wand-sparkles"></i> 施展文字魔法
+                    <i class="fa-solid fa-wand-sparkles"></i> 施展文字魔法<span class="en-inline">Write with Senses</span>
                 </button>
 
                 <div id="expression-result-container" class="hidden flex-grow flex flex-col">
@@ -320,7 +347,7 @@
                         <div id="expression-result-text" class="text-lg leading-relaxed text-gray-800 whitespace-pre-wrap"></div>
                     </div>
                     <button onclick="saveNote('expression')" class="glass-button-secondary w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2">
-                        <i class="fa-regular fa-bookmark"></i> 收藏妙筆生花
+                        <i class="fa-regular fa-bookmark"></i> 收藏妙筆生花<span class="en-inline">Save This Passage</span>
                     </button>
                 </div>
             </div>
@@ -336,9 +363,9 @@
                     <h2 class="text-2xl font-bold flex items-center gap-2 text-brand-dark">
                         <i class="fa-solid fa-comments"></i> 綿綿言情
                     </h2>
-                    <button onclick="clearChat()" class="text-xs text-gray-500 hover:text-red-500 shrink-0 mt-1">清空對話</button>
+                    <button onclick="clearChat()" class="text-xs text-gray-500 hover:text-red-500 shrink-0 mt-1">清空對話<span class="en-inline">Clear</span></button>
                 </div>
-                <p class="text-gray-600 mb-4">用中文或 English 都可以。AI言情 不會直接給你答案，而是用問題一步步帶你想出寫法。</p>
+                <p class="text-gray-600 mb-4">用中文或 English 都可以。AI言情 不會直接給你答案，而是用問題一步步帶你想出寫法。<span class="en-sub">Chinese or English are both fine. AI言情 won't give you the answer — it asks questions that lead you to your own words.</span></p>
 
                 <div id="chat-messages" class="flex-grow min-h-[260px] max-h-[50vh] md:max-h-none overflow-auto bg-white/40 rounded-xl p-4 mb-3 flex flex-col gap-3">
                     <!-- 對話訊息由 JS 注入 -->
@@ -351,9 +378,9 @@
                 </div>
 
                 <div class="flex flex-col md:flex-row gap-2">
-                    <textarea id="chat-input" rows="2" placeholder="輸入中文或 English…" class="glass-input w-full rounded-xl px-4 py-3 text-base resize-none" onkeydown="handleChatKey(event)"></textarea>
+                    <textarea id="chat-input" rows="2" placeholder="輸入中文或 English… / Type in Chinese or English…" class="glass-input w-full rounded-xl px-4 py-3 text-base resize-none" onkeydown="handleChatKey(event)"></textarea>
                     <button onclick="sendChat()" id="btn-chat" class="glass-button w-full md:w-auto px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 whitespace-nowrap">
-                        <i class="fa-solid fa-paper-plane"></i> 傳送
+                        <i class="fa-solid fa-paper-plane"></i> 傳送<span class="en-inline">Send</span>
                     </button>
                 </div>
             </div>
@@ -363,13 +390,13 @@
                 <h2 class="text-2xl font-bold mb-2 flex items-center gap-2 text-mint-dark">
                     <i class="fa-solid fa-book"></i> 我的筆記本
                 </h2>
-                <p class="text-gray-600 mb-6">這裡保存了你收藏的精美詞句。</p>
+                <p class="text-gray-600 mb-6">這裡保存了你收藏的精美詞句。<span class="en-sub">Everything you saved from the four tools above lives here.</span></p>
                 
                 <div class="flex gap-2 mb-4">
-                    <button onclick="filterNotebook('all')" class="notebook-filter glass-button-secondary px-4 py-1 rounded-full text-sm font-bold bg-white/90">全部</button>
-                    <button onclick="filterNotebook('word')" class="notebook-filter glass-button-secondary px-4 py-1 rounded-full text-sm">詞語</button>
-                    <button onclick="filterNotebook('sentence')" class="notebook-filter glass-button-secondary px-4 py-1 rounded-full text-sm">句子</button>
-                    <button onclick="filterNotebook('expression')" class="notebook-filter glass-button-secondary px-4 py-1 rounded-full text-sm">修辭</button>
+                    <button onclick="filterNotebook('all')" class="notebook-filter glass-button-secondary px-4 py-1 rounded-full text-sm font-bold bg-white/90">全部<span class="en-inline">All</span></button>
+                    <button onclick="filterNotebook('word')" class="notebook-filter glass-button-secondary px-4 py-1 rounded-full text-sm">詞語<span class="en-inline">Words</span></button>
+                    <button onclick="filterNotebook('sentence')" class="notebook-filter glass-button-secondary px-4 py-1 rounded-full text-sm">句子<span class="en-inline">Sentences</span></button>
+                    <button onclick="filterNotebook('expression')" class="notebook-filter glass-button-secondary px-4 py-1 rounded-full text-sm">修辭<span class="en-inline">Passages</span></button>
                 </div>
 
                 <div id="notebook-list" class="flex-grow overflow-auto flex flex-col gap-3 pr-2">
@@ -383,16 +410,16 @@
                 <h2 class="text-2xl font-bold mb-2 flex items-center gap-2 text-purple-600">
                     <i class="fa-solid fa-chart-line"></i> 使用數據
                 </h2>
-                <p class="text-gray-600 mb-6">匿名使用統計：只記錄模組、成功或失敗、耗時與字數，不會記錄學生輸入了什麼、AI 說了些什麼。</p>
+                <p class="text-gray-600 mb-6">匿名使用統計：只記錄模組、成功或失敗、耗時與字數，不會記錄學生輸入了什麼、AI 說了些什麼。<span class="en-sub">Anonymous usage stats: module, success or failure, duration and character counts only. Never what students typed or what AI replied.</span></p>
 
                 <!-- 教師解鎖 -->
                 <div id="stats-lock-view" class="flex-grow flex flex-col items-center justify-center">
                     <div class="bg-white/50 p-8 rounded-2xl border border-white/60 max-w-sm w-full text-center shadow-lg">
                         <i class="fa-solid fa-lock text-4xl text-purple-400 mb-4"></i>
-                        <h3 class="text-lg font-bold mb-4">請輸入教師密碼</h3>
-                        <input type="password" id="stats-pwd" class="glass-input w-full rounded-xl px-4 py-2 text-center mb-4" placeholder="密碼" onkeypress="handleStatsEnter(event)">
-                        <div id="stats-error" class="text-red-500 text-sm mb-4 hidden">密碼錯誤，請重試。</div>
-                        <button onclick="unlockStats()" class="glass-button w-full py-2 rounded-xl font-bold">解鎖</button>
+                        <h3 class="text-lg font-bold mb-4">請輸入教師密碼<span class="en-sub">Teacher password</span></h3>
+                        <input type="password" id="stats-pwd" class="glass-input w-full rounded-xl px-4 py-2 text-center mb-4" placeholder="密碼 / Password" onkeypress="handleStatsEnter(event)">
+                        <div id="stats-error" class="text-red-500 text-sm mb-4 hidden">密碼錯誤，請重試。<span class="en-sub">Wrong password, please try again.</span></div>
+                        <button onclick="unlockStats()" class="glass-button w-full py-2 rounded-xl font-bold">解鎖<span class="en-inline">Unlock</span></button>
                     </div>
                 </div>
 
@@ -400,7 +427,7 @@
                 <div id="stats-view" class="hidden flex-grow flex flex-col min-h-0">
                     <div class="flex justify-between items-center mb-3">
                         <div id="stats-sync" class="text-xs text-gray-500"></div>
-                        <button onclick="lockStats()" class="text-sm text-red-500 hover:underline">鎖定</button>
+                        <button onclick="lockStats()" class="text-sm text-red-500 hover:underline">鎖定<span class="en-inline">Lock</span></button>
                     </div>
 
                     <div id="stats-cards" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3"></div>
@@ -409,11 +436,11 @@
                         <table class="w-full text-sm">
                             <thead class="sticky top-0 bg-white/90 text-gray-500">
                                 <tr>
-                                    <th class="text-left px-3 py-2 font-medium">時間</th>
-                                    <th class="text-left px-3 py-2 font-medium">模組</th>
-                                    <th class="text-left px-3 py-2 font-medium">狀態</th>
-                                    <th class="text-right px-3 py-2 font-medium">耗時</th>
-                                    <th class="text-right px-3 py-2 font-medium">字數</th>
+                                    <th class="text-left px-3 py-2 font-medium">時間<span class="en-sub">Time</span></th>
+                                    <th class="text-left px-3 py-2 font-medium">模組<span class="en-sub">Module</span></th>
+                                    <th class="text-left px-3 py-2 font-medium">狀態<span class="en-sub">Status</span></th>
+                                    <th class="text-right px-3 py-2 font-medium">耗時<span class="en-sub">Duration</span></th>
+                                    <th class="text-right px-3 py-2 font-medium">字數<span class="en-sub">Chars</span></th>
                                 </tr>
                             </thead>
                             <tbody id="stats-rows"></tbody>
@@ -422,13 +449,13 @@
 
                     <div class="flex flex-wrap gap-2">
                         <button onclick="exportStatsCSV()" class="glass-button-secondary px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
-                            <i class="fa-solid fa-file-csv"></i> 匯出 CSV
+                            <i class="fa-solid fa-file-csv"></i> 匯出 CSV<span class="en-inline">Export CSV</span>
                         </button>
                         <button onclick="flushStats(true)" class="glass-button-secondary px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> 立即上傳
+                            <i class="fa-solid fa-cloud-arrow-up"></i> 立即上傳<span class="en-inline">Upload Now</span>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-500 mt-3">這裡只顯示這部裝置的記錄；全班匯總在 Google Sheet。裝置代號為隨機碼，無法對應到學生身份。</p>
+                    <p class="text-xs text-gray-500 mt-3">這裡只顯示這部裝置的記錄；全班匯總在 Google Sheet。裝置代號為隨機碼，無法對應到學生身份。<span class="en-sub">This device only; class-wide totals live in the Google Sheet. Device IDs are random and cannot identify a student.</span></p>
                 </div>
             </div>
 
@@ -620,7 +647,7 @@
         }
 
         // 豆包（火山方舟 Ark）Chat Completions 呼叫
-        const LANGUAGE_RULE = '\n\n語言要求：一律使用規範的現代漢語書面語（普通話），以繁體字輸出，逐字檢查，禁止出現簡體字。嚴禁粵語口語詞與粵語語法，例如「唔、嘅、咗、啲、喺、係、咁、乜、嗰、嚟、睇、畀、俾、晒、哋、好正、搞掂、成個人」等一律不可使用；香港地名、人名、食物等專有名詞可保留。除了指定格式之外，不要輸出任何說明、評語或客套話。';
+        const LANGUAGE_RULE = '\n\n語言要求：中文一律使用規範的現代漢語書面語（普通話），以繁體字輸出，逐字檢查，禁止出現簡體字。嚴禁粵語口語詞與粵語語法，例如「唔、嘅、咗、啲、喺、係、咁、乜、嗰、嚟、睇、畀、俾、晒、哋、好正、搞掂、成個人」等一律不可使用；香港地名、人名、食物等專有名詞可保留。若格式要求輸出以「EN: 」開頭的行或括號內的英文，該部分的英文照寫，用簡單英語，不要夾雜中文；除此之外不要輸出任何說明、評語或客套話。';
 
         async function callAI(prompt, systemInstruction, opts = {}) {
             const cfg = ensureDoubaoConfig();
@@ -682,11 +709,12 @@
             const rows = result.split('\n').map(l => l.trim()).filter(Boolean).map(line => {
                 const parts = line.split('｜');
                 const head = parts.shift().trim();
-                const desc = parts.join('｜').trim();
+                const desc = (parts[0] || '').trim();
+                const en = (parts[1] || '').trim();
                 const tokens = head.split(/\s+/);
                 const emoji = tokens.length > 1 && /\p{Extended_Pictographic}/u.test(tokens[0])
                     ? tokens.shift() : '';
-                return { emoji, word: tokens.join(' ').trim(), desc };
+                return { emoji, word: tokens.join(' ').trim(), desc, en };
             });
             const labels = ['平淡', '輕微', '中等', '強烈', '極強'];
             el.innerHTML = `<div class="flex flex-col gap-2">` + rows.map((r, i) => {
@@ -701,7 +729,7 @@
                             <span class="font-bold text-gray-800">${escapeHtml(r.word)}</span>
                             <span class="text-[11px] text-gray-500">${level}/5 · ${labels[level - 1]}</span>
                         </div>
-                        <div class="text-sm text-gray-600 leading-relaxed">${escapeHtml(r.desc)}</div>
+                        <div class="text-sm text-gray-600 leading-relaxed">${escapeHtml(r.desc)}${r.en ? `<span class="en-block">${escapeHtml(r.en)}</span>` : ''}</div>
                         <div class="flex items-center gap-1 mt-1.5">${dots}</div>
                     </div>
                 </div>`;
@@ -724,13 +752,25 @@
             let html = '<div class="flex flex-col gap-3">';
             for (let i = 1; i < parts.length; i += 2) {
                 const title = parts[i];
-                const body = (parts[i + 1] || '').trim();
+                const rawBody = (parts[i + 1] || '').trim();
+                const zhLines = [];
+                const enLines = [];
+                rawBody.split('\n').forEach(line => {
+                    const t = line.trim();
+                    if (/^EN\s*[:：]/i.test(t)) {
+                        enLines.push(t.replace(/^EN\s*[:：]\s*/i, ''));
+                    } else {
+                        zhLines.push(line);
+                    }
+                });
+                const zh = zhLines.join('\n').trim();
+                const en = enLines.join(' ').trim();
                 html += `
                 <div class="bg-white/70 rounded-xl p-4 border border-white/70">
                     <div class="flex items-center gap-2 mb-2 font-bold text-gray-700">
                         <i class="fa-solid ${icons[title] || 'fa-circle-dot'}"></i> ${title}
                     </div>
-                    <div class="text-base leading-relaxed text-gray-800 whitespace-pre-wrap">${escapeHtml(body)}</div>
+                    <div class="text-base leading-relaxed text-gray-800 whitespace-pre-wrap">${escapeHtml(zh)}${en ? `<span class="en-block">${escapeHtml(en)}</span>` : ''}</div>
                 </div>`;
             }
             el.innerHTML = html + '</div>';
@@ -754,13 +794,13 @@
 - 形容詞或情緒／感受詞（如「高興」「傷心」「緊張」「害怕」）：給 5 個意思相近但情感濃度不同的詞，必須由最平淡（程度最輕）排到最強烈（程度最重）。
 
 輸出格式（必須嚴格遵守）：
-- 一般詞語：只輸出 5 個詞，用頓號（、）分隔，不要編號、不要解釋、不要加句號。
-- 情緒／感受詞：改為輸出正好 5 行，第 1 行情感最平淡，第 5 行最強烈，不可調換次序。每行格式為「<emoji> <詞語>｜<15 字以內的解釋>」。解釋要講清楚這個詞的程度、使用情境，或它與相近詞的分別。例子：
-😊 有點高興｜心情不錯，只是輕輕的愉快
-😄 愉快｜心情輕鬆，明顯比平時開心
-🤩 興奮｜情緒高漲，坐不住想動起來
-🥳 雀躍｜興奮得想跳起來，好事剛發生時用
-😭 欣喜若狂｜高興到極點，忍不住又叫又跳
+- 一般詞語：只輸出 5 個詞，用頓號（、）分隔，不要編號、不要加句號。每個詞後面用括號附上簡短英文（2 字以內），例如：沙灘 (beach)、海浪 (waves)、貝殼 (shells)。
+- 情緒／感受詞：改為輸出正好 5 行，第 1 行情感最平淡，第 5 行最強烈，不可調換次序。每行格式為「<emoji> <詞語>｜<15 字以內的解釋>｜<簡短英文解釋>」。中文解釋要講清楚這個詞的程度、使用情境，或它與相近詞的分別；英文解釋 8 字以內，用簡單英文，讓非華語學生看得懂。例子：
+😊 有點高興｜心情不錯，只是輕輕的愉快｜a little happy
+😄 愉快｜心情輕鬆，明顯比平時開心｜pleased and relaxed
+🤩 興奮｜情緒高漲，坐不住想動起來｜very excited
+🥳 雀躍｜興奮得想跳起來，好事剛發生時用｜thrilled, want to jump
+😭 欣喜若狂｜高興到極點，忍不住又叫又跳｜overjoyed, ecstatic
 - emoji 要貼切、常見，不要用生僻或拼組 emoji；每個詞的 emoji 不可重複，且 emoji 的表情強度要與詞語的情感濃度一致（越強烈的詞，表情越誇張）。
 
 選詞原則：
@@ -800,19 +840,23 @@
 
 【診斷】
 用一句話指出句子是否通順、問題在哪裡、為什麼是問題；若完全正確，寫「✅ 語法正確，句子通順。」並簡述它好在哪裡。
+然後另起一行寫「EN: <上述診斷的英文翻譯>」。
 
 【修訂】
 寫出修訂後的句子，只寫句子本身。保留原意，只改動真正有問題的地方，不要趁機把句子寫得更華麗。若原句正確，寫「無需修訂。」
 若句子可以自然改寫，可用另一行各寫一句「把字句：…」與「被字句：…」，但不可硬造。
+然後另起一行寫「EN: <修訂後句子的英文翻譯>」。
 
 【點評】
 按以下三行輸出：
 優點：<一句，指出這句好在哪裡，即使是小優點>
 可改進：<一句，指出可以提升的地方>
 建議：<一句，給學生一個具體可行的下一步或練習方向>
+然後另起一行寫「EN: <把優點、可改進、建議三點用 2–3 句簡單英文總結>」。
 
 要求：
 - 全部使用規範的現代漢語書面語，繁體字，不要簡體字、不要粵語口語。
+- EN 行必須是純英文、簡單用詞，讓非華語學生看得懂；EN 行不要夾雜中文。
 - 若學生原句含粵語口語或方言（如「我唔知」「佢走咗」），診斷時先說明，修訂時轉為書面語。
 - 點評要具體、溫和、對小四至中一學生說得明白，不要空泛讚美。
 - 把字句、被字句要符合香港小學課本教的結構。`;
@@ -854,14 +898,21 @@
 - 細節要貼合原句的情境與人物，不要添加原句沒有提到的情節、地點或角色。
 - 語氣要和原句一致；原句平淡就寫得溫和自然，原句雀躍就寫得輕快。
 
-只輸出一句擴寫後的句子：不要解釋、不要說明用了哪種感官、不要加書名號或引號。`;
+輸出格式（必須嚴格遵守）：
+第一行：擴寫後的中文句子，只寫句子本身，不要解釋、不要說明用了哪種感官、不要加書名號或引號。
+第二行：以「EN: 」開頭，寫出這句中文的英文翻譯，用簡單英文，讓非華語學生看得懂；不要夾雜中文。`;
             
             const startedAt = Date.now();
             try {
                 const result = await callAI(`簡單句子：${input}`, systemPrompt);
                 
                 currentGeneratedContent.expression = { input, result };
-                document.getElementById('expression-result-text').innerText = result;
+                const lines = result.split('\n');
+                const zh = lines.filter(l => !/^EN\s*[:：]/i.test(l.trim())).join('\n').trim();
+                const en = lines.filter(l => /^EN\s*[:：]/i.test(l.trim()))
+                    .map(l => l.replace(/^EN\s*[:：]\s*/i, '').trim()).join(' ').trim();
+                document.getElementById('expression-result-text').innerHTML =
+                    escapeHtml(zh) + (en ? `<span class="en-block">${escapeHtml(en)}</span>` : '');
                 document.getElementById('expression-result-container').classList.remove('hidden');
                 logUsage('expression', true, Date.now() - startedAt, input, result);
                 
