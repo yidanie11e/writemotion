@@ -940,6 +940,77 @@
 - 若學生的句子有語病或用粵語口語，先溫和指出問題所在，再問他打算怎樣改，不要直接代改。
 - 不要輸出格式標籤或多餘的前言，直接開始對話。`;
 
+        // ================= 語音朗讀（瀏覽器內建 Web Speech API） =================
+        const TTS = {
+            supported: typeof window !== 'undefined' && 'speechSynthesis' in window,
+            currentBtn: null,
+            utterance: null
+        };
+
+        // 依語言挑選最合適的語音：中文優先用粵語（香港），其次台灣／普通話；英文優先用美式
+        function ttsPickVoice(text) {
+            if (!TTS.supported) return null;
+            const isZh = /[\u4e00-\u9fff]/.test(text);
+            const prefs = isZh
+                ? ['yue-HK', 'zh-HK', 'zh-Hant', 'zh-TW', 'zh-CN', 'zh']
+                : ['en-US', 'en-GB', 'en'];
+            const voices = window.speechSynthesis.getVoices();
+            for (const p of prefs) {
+                const v = voices.find(x => x.lang && x.lang.replace('_', '-').toLowerCase().startsWith(p.toLowerCase()));
+                if (v) return v;
+            }
+            return null;
+        }
+
+        window.stopSpeaking = () => {
+            if (!TTS.supported) return;
+            window.speechSynthesis.cancel();
+            if (TTS.currentBtn) {
+                TTS.currentBtn.innerHTML = TTS.currentBtn.dataset.idle || '🔊 朗讀';
+                TTS.currentBtn.classList.remove('ring-2', 'ring-brand');
+                TTS.currentBtn = null;
+            }
+        };
+
+        window.speakMessage = (btn) => {
+            if (!TTS.supported) {
+                showToast('此瀏覽器不支援語音朗讀，請改用 Chrome／Safari', 'error');
+                return;
+            }
+            const text = btn.dataset.text || '';
+            if (!text) return;
+
+            // 同一句再按一次 = 停止
+            if (TTS.currentBtn === btn) {
+                window.stopSpeaking();
+                return;
+            }
+            window.stopSpeaking();
+
+            const u = new SpeechSynthesisUtterance(text);
+            const voice = ttsPickVoice(text);
+            if (voice) u.voice = voice;
+            u.lang = voice ? voice.lang : (/[\u4e00-\u9fff]/.test(text) ? 'zh-HK' : 'en-US');
+            u.rate = 0.95;
+            u.pitch = 1;
+
+            if (!btn.dataset.idle) btn.dataset.idle = btn.innerHTML;
+            TTS.currentBtn = btn;
+            btn.innerHTML = '<i class="fa-solid fa-stop"></i> 停止';
+            btn.classList.add('ring-2', 'ring-brand');
+
+            u.onend = () => window.stopSpeaking();
+            u.onerror = () => window.stopSpeaking();
+            TTS.utterance = u;
+            window.speechSynthesis.speak(u);
+        };
+
+        // 部分瀏覽器語音列表是非同步載入的
+        if (TTS.supported) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+
         function renderChat() {
             const box = document.getElementById('chat-messages');
             if (!box) return;
@@ -955,14 +1026,22 @@
                 return;
             }
 
-            box.innerHTML = chatHistory.map(m => {
+            box.innerHTML = chatHistory.map((m, idx) => {
                 const isUser = m.role === 'user';
+                // AI 回覆下方提供朗讀按鈕（中英自動判斷）
+                const speakBtn = (!isUser && TTS.supported) ? `
+                    <button type="button" onclick="speakMessage(this)" data-text="${escapeHtml(m.content)}"
+                            class="mt-1 text-[11px] text-gray-500 hover:text-brand flex items-center gap-1 rounded px-1 py-0.5 transition"
+                            aria-label="朗讀這段回覆">
+                        <i class="fa-solid fa-volume-high"></i> 朗讀<span class="en-inline">Read aloud</span>
+                    </button>` : '';
                 return `
-                <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
+                <div class="flex flex-col ${isUser ? 'items-end' : 'items-start'}">
                     <div class="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
                         ${isUser ? 'bg-brand text-white rounded-br-md' : 'bg-white/85 text-gray-800 rounded-bl-md border border-white/70'}">
                         ${escapeHtml(m.content)}
                     </div>
+                    ${speakBtn}
                 </div>`;
             }).join('');
             box.scrollTop = box.scrollHeight;
@@ -993,6 +1072,7 @@
         };
 
         window.clearChat = () => {
+            window.stopSpeaking();
             chatHistory = [];
             renderChat();
             showToast('對話已清空');
