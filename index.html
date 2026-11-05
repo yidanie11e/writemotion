@@ -300,9 +300,14 @@
                     <div class="bg-white/50 rounded-xl p-5 flex-grow mb-4 overflow-auto border border-white/60">
                         <div id="word-result-text" class="text-lg leading-relaxed text-gray-800 whitespace-pre-wrap"></div>
                     </div>
-                    <button onclick="saveNote('word')" class="glass-button-secondary w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2">
-                        <i class="fa-regular fa-bookmark"></i> 收藏到筆記本<span class="en-inline">Save to Notebook</span>
-                    </button>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button onclick="speakWords()" id="btn-speak-words" class="glass-button-secondary flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-high"></i> 朗讀詞語<span class="en-inline">Read aloud</span>
+                        </button>
+                        <button onclick="saveNote('word')" class="glass-button-secondary flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                            <i class="fa-regular fa-bookmark"></i> 收藏到筆記本<span class="en-inline">Save to Notebook</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -702,6 +707,11 @@
         // 詞語結果：情緒詞以 emoji ＋ 解釋卡片呈現，並按情感濃度由 1（平淡）到 5（強烈）排序
         function renderWordResult(result) {
             const el = document.getElementById('word-result-text');
+            const speakBtn = document.getElementById('btn-speak-words');
+            if (speakBtn) {
+                speakBtn.dataset.text = result;
+                if (!TTS.supported) speakBtn.classList.add('hidden');
+            }
             if (!result.includes('｜')) {
                 el.innerText = result;
                 return;
@@ -721,6 +731,12 @@
                 const level = Math.min(i + 1, labels.length);
                 const dots = Array.from({ length: 5 }, (_, d) => `
                     <span class="w-2 h-2 rounded-full ${d < level ? 'bg-brand' : 'bg-gray-200'}"></span>`).join('');
+                const single = TTS.supported ? `
+                    <button type="button" onclick="speakMessage(this)" data-text="${escapeHtml(r.word + '，' + r.desc)}"
+                            class="ml-auto text-gray-400 hover:text-brand p-1 leading-none shrink-0"
+                            aria-label="朗讀 ${escapeHtml(r.word)}">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>` : '';
                 return `
                 <div class="flex items-start gap-3 bg-white/70 rounded-xl p-3 border border-white/70">
                     <span class="text-3xl leading-none shrink-0">${escapeHtml(r.emoji)}</span>
@@ -728,6 +744,7 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="font-bold text-gray-800">${escapeHtml(r.word)}</span>
                             <span class="text-[11px] text-gray-500">${level}/5 · ${labels[level - 1]}</span>
+                            ${single}
                         </div>
                         <div class="text-sm text-gray-600 leading-relaxed">${escapeHtml(r.desc)}${r.en ? `<span class="en-block">${escapeHtml(r.en)}</span>` : ''}</div>
                         <div class="flex items-center gap-1 mt-1.5">${dots}</div>
@@ -940,6 +957,17 @@
 - 若學生的句子有語病或用粵語口語，先溫和指出問題所在，再問他打算怎樣改，不要直接代改。
 - 不要輸出格式標籤或多餘的前言，直接開始對話。`;
 
+        // 朗讀用的文字清理：移除 emoji、把格式分隔符換成停頓
+        function ttsClean(s) {
+            return String(s)
+                .replace(/\p{Extended_Pictographic}/gu, '')
+                .replace(/｜/g, '，')
+                .replace(/、/g, '，')
+                .replace(/[(\（][a-zA-Z ]+[)\）]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
         // ================= 語音朗讀（瀏覽器內建 Web Speech API） =================
         const TTS = {
             supported: typeof window !== 'undefined' && 'speechSynthesis' in window,
@@ -977,7 +1005,7 @@
                 showToast('此瀏覽器不支援語音朗讀，請改用 Chrome／Safari', 'error');
                 return;
             }
-            const text = btn.dataset.text || '';
+            const text = ttsClean(btn.dataset.text || '');
             if (!text) return;
 
             // 同一句再按一次 = 停止
@@ -1011,6 +1039,16 @@
             window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
         }
 
+        // 朗讀整組詞語
+        window.speakWords = () => {
+            const btn = document.getElementById('btn-speak-words');
+            if (!btn || !btn.dataset.text) {
+                showToast('請先找出詞語', 'error');
+                return;
+            }
+            window.speakMessage(btn);
+        };
+
         function renderChat() {
             const box = document.getElementById('chat-messages');
             if (!box) return;
@@ -1026,22 +1064,14 @@
                 return;
             }
 
-            box.innerHTML = chatHistory.map((m, idx) => {
+            box.innerHTML = chatHistory.map(m => {
                 const isUser = m.role === 'user';
-                // AI 回覆下方提供朗讀按鈕（中英自動判斷）
-                const speakBtn = (!isUser && TTS.supported) ? `
-                    <button type="button" onclick="speakMessage(this)" data-text="${escapeHtml(m.content)}"
-                            class="mt-1 text-[11px] text-gray-500 hover:text-brand flex items-center gap-1 rounded px-1 py-0.5 transition"
-                            aria-label="朗讀這段回覆">
-                        <i class="fa-solid fa-volume-high"></i> 朗讀<span class="en-inline">Read aloud</span>
-                    </button>` : '';
                 return `
-                <div class="flex flex-col ${isUser ? 'items-end' : 'items-start'}">
+                <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
                     <div class="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
                         ${isUser ? 'bg-brand text-white rounded-br-md' : 'bg-white/85 text-gray-800 rounded-bl-md border border-white/70'}">
                         ${escapeHtml(m.content)}
                     </div>
-                    ${speakBtn}
                 </div>`;
             }).join('');
             box.scrollTop = box.scrollHeight;
