@@ -341,7 +341,7 @@
 
                 <div class="flex gap-2 mb-2 overflow-x-auto no-scrollbar pb-1">
                     <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">作文開頭可以怎樣寫？</button>
-                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">這句為什麼不通順？</button>
+                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">如何表達和家人團聚的感情？</button>
                     <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">How can I describe a rainy day?</button>
                 </div>
 
@@ -667,7 +667,7 @@
             ));
         }
 
-        // 詞語結果：情緒詞以 emoji ＋ 解釋卡片呈現，其他類型維持詞語標籤
+        // 詞語結果：情緒詞以 emoji ＋ 解釋卡片呈現，並按情感濃度由 1（平淡）到 5（強烈）排序
         function renderWordResult(result) {
             const el = document.getElementById('word-result-text');
             if (!result.includes('｜')) {
@@ -683,14 +683,24 @@
                     ? tokens.shift() : '';
                 return { emoji, word: tokens.join(' ').trim(), desc };
             });
-            el.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">` + rows.map(r => `
+            const labels = ['平淡', '輕微', '中等', '強烈', '極強'];
+            el.innerHTML = `<div class="flex flex-col gap-2">` + rows.map((r, i) => {
+                const level = Math.min(i + 1, labels.length);
+                const dots = Array.from({ length: 5 }, (_, d) => `
+                    <span class="w-2 h-2 rounded-full ${d < level ? 'bg-brand' : 'bg-gray-200'}"></span>`).join('');
+                return `
                 <div class="flex items-start gap-3 bg-white/70 rounded-xl p-3 border border-white/70">
                     <span class="text-3xl leading-none shrink-0">${escapeHtml(r.emoji)}</span>
-                    <div class="min-w-0">
-                        <div class="font-bold text-gray-800">${escapeHtml(r.word)}</div>
+                    <div class="min-w-0 flex-grow">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-gray-800">${escapeHtml(r.word)}</span>
+                            <span class="text-[11px] text-gray-500">${level}/5 · ${labels[level - 1]}</span>
+                        </div>
                         <div class="text-sm text-gray-600 leading-relaxed">${escapeHtml(r.desc)}</div>
+                        <div class="flex items-center gap-1 mt-1.5">${dots}</div>
                     </div>
-                </div>`).join('') + `</div>`;
+                </div>`;
+            }).join('') + `</div>`;
         }
 
         // 句子結果：【診斷】／【修訂】／【點評】三段卡片
@@ -736,15 +746,17 @@
 先判斷學生輸入的詞語屬於哪一類：
 - 名詞（如「海邊」「操場」）：給 5 個寫作文時用得上的聯想詞——相關的事物、景物、動作或聲音。
 - 動詞（如「跑」「看」）：給 5 個更精確、更有畫面的表達方式。
-- 形容詞或情緒／感受詞（如「高興」「傷心」「緊張」「害怕」）：給 5 個意思相近但程度或情境不同的詞，由淺入深。
+- 形容詞或情緒／感受詞（如「高興」「傷心」「緊張」「害怕」）：給 5 個意思相近但情感濃度不同的詞，必須由最平淡（程度最輕）排到最強烈（程度最重）。
 
 輸出格式（必須嚴格遵守）：
 - 一般詞語：只輸出 5 個詞，用頓號（、）分隔，不要編號、不要解釋、不要加句號。
-- 情緒／感受詞：改為輸出 5 行，每行格式為「<emoji> <詞語>｜<15 字以內的解釋>」。解釋要講清楚這個詞的程度、使用情境，或它與相近詞的分別。例子：
-😄 愉快｜心情輕鬆，程度比「高興」輕一點
-🥳 雀躍｜興奮得想跳起來，好事發生時用
-😤 氣憤｜又怒又不服氣，多用於受到不公平對待
-- emoji 要貼切、常見，不要用生僻或拼組 emoji；每個詞的 emoji 不可重複。
+- 情緒／感受詞：改為輸出正好 5 行，第 1 行情感最平淡，第 5 行最強烈，不可調換次序。每行格式為「<emoji> <詞語>｜<15 字以內的解釋>」。解釋要講清楚這個詞的程度、使用情境，或它與相近詞的分別。例子：
+😊 有點高興｜心情不錯，只是輕輕的愉快
+😄 愉快｜心情輕鬆，明顯比平時開心
+🤩 興奮｜情緒高漲，坐不住想動起來
+🥳 雀躍｜興奮得想跳起來，好事剛發生時用
+😭 欣喜若狂｜高興到極點，忍不住又叫又跳
+- emoji 要貼切、常見，不要用生僻或拼組 emoji；每個詞的 emoji 不可重複，且 emoji 的表情強度要與詞語的情感濃度一致（越強烈的詞，表情越誇張）。
 
 選詞原則：
 - 小四至中一學生看得懂、作文裡真的會用。
@@ -881,7 +893,7 @@
                     <div class="text-gray-500 text-sm text-center mt-6 leading-relaxed">
                         試試問我：<br>
                         「作文開頭可以怎樣寫？」<br>
-                        「這句為什麼不通順？」<br>
+                        「如何表達和家人團聚的感情？」<br>
                         「How can I describe a rainy day?」
                     </div>`;
                 return;
