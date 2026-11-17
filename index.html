@@ -947,7 +947,7 @@
         let chatHistory = [];
         let chatBusy = false;
 
-        const CHAT_SYSTEM = `你是「AI言情」——一位親切、有幽默感的中文寫作教練，對象是小四至中一的香港學生。你的任務不是替學生寫答案，而是用提問、示範和提示，一步一步引導他們自己想出更好的寫法。
+        const CHAT_SYSTEM = `你是「綿綿」——「AI言情」裡的中文寫作教練，一位親切、有幽默感的老師，對象是小四至中一的香港學生。學生會叫你「綿綿」，你自稱「我」，不要叫自己做「AI」或「助手」。你的任務不是替學生寫答案，而是用提問、示範和提示，一步一步引導他們自己想出更好的寫法。
 
 對話規則：
 - 語言（最重要）：預設一律用繁體中文回答。即使學生用英文發問、整句都是英文，或中英夾雜，也照樣用中文回答，不要自動改用英文。中文一律用規範的現代漢語書面語，繁體字，不要粵語口語（如「唔、嘅、咗、啲、喺、係、咁」）。
@@ -1059,15 +1059,16 @@
 
             if (!chatHistory.length) {
                 box.innerHTML = `
-                    <div class="flex flex-col items-center gap-3 mt-4">
-                        <img src="assets/avatar.jpg" alt="AI言情"
-                             class="w-16 h-16 rounded-full object-cover ring-2 ring-white/80 shadow-md">
-                        <div class="text-gray-500 text-sm text-center leading-relaxed">
-                            試試問我：<br>
-                            「作文開頭可以怎樣寫？」<br>
-                            「如何表達和家人團聚的感情？」<br>
-                            「How can I describe a rainy day?」
+                    <div class="flex items-start gap-2">
+                        <img src="assets/avatar.jpg" alt="綿綿"
+                             class="w-8 h-8 rounded-full object-cover ring-1 ring-white/80 shrink-0 mt-0.5">
+                        <div class="max-w-[85%] bg-white/85 text-gray-800 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm leading-relaxed border border-white/70">
+                            你好呀！我是 AI言情的綿綿，你叫我綿綿就好。今天我可以怎麼樣幫到你呢？
+                            <span class="en-block">Hi! I'm Mianmian from AI言情 — just call me Mianmian. How can I help you today?</span>
                         </div>
+                    </div>
+                    <div class="text-gray-400 text-xs text-center mt-3 leading-relaxed">
+                        想不到怎樣開始？可按下面的建議，或直接寫下你的問題。
                     </div>`;
                 return;
             }
@@ -1095,7 +1096,7 @@
                     <img src="assets/avatar.jpg" alt="AI言情"
                          class="w-8 h-8 rounded-full object-cover ring-1 ring-white/80 shrink-0 mt-0.5">
                     <div class="bg-white/85 text-gray-500 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm border border-white/70">
-                        AI言情 正在想<span class="chat-dots"></span>
+                        綿綿 正在想<span class="chat-dots"></span>
                     </div>
                 </div>`);
             box.scrollTop = box.scrollHeight;
