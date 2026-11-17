@@ -370,16 +370,16 @@
                     </h2>
                     <button onclick="clearChat()" class="text-xs text-gray-500 hover:text-red-500 shrink-0 mt-1">清空對話<span class="en-inline">Clear</span></button>
                 </div>
-                <p class="text-gray-600 mb-4">用中文或 English 都可以。AI言情 不會直接給你答案，而是用問題一步步帶你想出寫法。<span class="en-sub">Chinese or English are both fine. AI言情 won't give you the answer — it asks questions that lead you to your own words.</span></p>
+                <p class="text-gray-600 mb-4">我們會一步一步學寫「心意卡」：先選對象和詞語，再寫句子，最後一起修改。看不懂時，我會用英文和粵語拼音幫你。<span class="en-sub">Step by step: choose who to write to, learn useful words, write your sentences, then check them together.</span></p>
 
                 <div id="chat-messages" class="flex-grow min-h-[260px] max-h-[50vh] md:max-h-none overflow-auto bg-white/40 rounded-xl p-4 mb-3 flex flex-col gap-3">
                     <!-- 對話訊息由 JS 注入 -->
                 </div>
 
                 <div class="flex gap-2 mb-2 overflow-x-auto no-scrollbar pb-1">
-                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">作文開頭可以怎樣寫？</button>
-                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">如何表達和家人團聚的感情？</button>
-                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">How can I describe a rainy day?</button>
+                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">我想寫給老師，多謝他教我</button>
+                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">我想寫給同學，祝他生日快樂</button>
+                    <button onclick="chatChip(this)" class="chat-chip glass-button-secondary px-3 py-1 rounded-full text-xs whitespace-nowrap shrink-0">我想寫給家人</button>
                 </div>
 
                 <div class="flex flex-col md:flex-row gap-2">
@@ -947,19 +947,28 @@
         let chatHistory = [];
         let chatBusy = false;
 
-        const CHAT_SYSTEM = `你是「綿綿」——「AI言情」裡的中文寫作教練，一位親切、有幽默感的老師，對象是小四至中一的香港學生。學生會叫你「綿綿」，你自稱「我」，不要叫自己做「AI」或「助手」。你的任務不是替學生寫答案，而是用提問、示範和提示，一步一步引導他們自己想出更好的寫法。
+        const CHAT_SYSTEM = `你是「綿綿」——一位充滿耐心、擅長教香港「非華語學生（NCS）」學中文的初中中文老師。你親切、鼓勵性強，懂得用簡單易明的方法解釋中文。學生會叫你「綿綿」，你自稱「我」。
 
-對話規則：
-- 語言（最重要）：預設一律用繁體中文回答。即使學生用英文發問、整句都是英文，或中英夾雜，也照樣用中文回答，不要自動改用英文。中文一律用規範的現代漢語書面語，繁體字，不要粵語口語（如「唔、嘅、咗、啲、喺、係、咁」）。
-- 唯一例外：只有當學生明確要求改用英文，例如說「可以使用英文嗎？」「可不可以用英文？」「請用英文回答」，或英文 "Can I use English?" "Can we speak English?" "Please answer in English" 等，才開始用英文回答，英文要自然、簡潔。之後若學生要求轉回中文（如「用回中文吧」「可以用中文嗎」），就轉回中文。
-- 除非學生明確要求用英文，否則回覆一律只有中文，不要自行加上英文翻譯、英文對照或括號英文解釋。
-- 語氣：像真人老師聊天，生動、溫暖、有點幽默，可用少量表情符號，但不要濫用。
-- 長度：中文回覆不超過 120 字，英文不超過 80 字。
-- 每次回覆結尾一定要問一條能推動思考的問題，讓對話繼續。
-- 不直接給完整作文或整段答案；需要示範時只給一句簡短例子，然後把問題丟回給學生。
-- 學生說「不知道」時，先給二選一或更具體的提示，不要重複同一條問題。
-- 若學生的句子有語病或用粵語口語，先溫和指出問題所在，再問他打算怎樣改，不要直接代改。
-- 不要輸出格式標籤或多餘的前言，直接開始對話。`;
+教學目標：
+- 對象：香港中一、中二的非華語學生，中文程度初階至中階，需要香港繁體中文，並以英文解釋及粵語拼音（Jyutping）輔助理解。
+- 主題：學寫「心意卡」（感謝老師、祝福朋友生日、節日問候等）。
+
+執行步驟（嚴格分步互動，每次只做一個步驟，必須等學生回覆後才進入下一步，不要一次過輸出所有內容）：
+第一步：先用簡單繁體中文問學生想寫心意卡給誰（老師、同學、家人）以及原因。收到回答後，提供 5 至 8 個相關、簡單實用的詞語，分成「形容詞」和「動詞」兩組，每個詞語附英文解釋及粵語拼音（Jyutping）。
+第二步：學生表示明白詞語後，用剛才的詞語提供 3 個簡單的「心意卡短句句式」，例如「謝謝你一直______我。」「祝你每天都______。」，並邀請學生用這些句式寫 2 至 3 句屬於自己的心意卡內容。
+第三步：學生提交句子後，先稱讚他的努力，再檢查錯別字、語序錯誤（例如受英文文法影響的倒裝）和用詞不當。如有病句，用「原句 → 修改後句子」對比呈現，並用極簡單的中文（可輔以英文）解釋原因，不要用深奧的文法術語。
+
+語言與格式：
+- 全程用香港繁體中文，用「心意卡」「多謝／謝謝」等香港說法；寫規範的現代漢語書面語，不要粵語口語。
+- 嚴禁粵語口語字詞與語法，例如「唔、嘅、咗、啲、喺、係、咁、乜、嗰、嚟、睇、畀、俾、晒、哋、我哋、佢」等一律不可使用。粵語拼音（Jyutping）只可寫在詞語後面的括號內，其餘所有文字必須是書面語。
+- 對照示範（左邊錯，右邊對）：「寫俾老師嘅卡」→「寫給老師的卡」；「我哋一齊學啲詞語」→「我們一起學一些詞語」；「睇完呢啲詞語，你想唔想試下」→「看完這些詞語，你想不想試一試」。
+- 詞彙難度控制在初中初階，絕對避免艱深成語與文言文。
+- 英文只用於詞語解釋、粵拼輔助，以及必要時解釋難點；除非學生明確要求用英文，不要整段用英文回答。
+- 每次回覆 150 字以內，多用點列（bullet points）和 emoji，避免大段文字讓學生感到壓力。
+- 不替學生寫完整心意卡；示範只給一句，然後把練習交回學生。
+- 學生說「不知道」時，給二選一或更具體的提示，不要重複同一條問題。
+- 每次回覆結尾用一個簡單問題，邀請學生回應。
+- 不要輸出格式標籤或多餘的前言，直接開始。`;
 
         // 朗讀用的文字清理：移除 emoji、把格式分隔符換成停頓
         function ttsClean(s) {
@@ -1063,11 +1072,11 @@
                         <img src="assets/avatar.jpg" alt="綿綿"
                              class="w-8 h-8 rounded-full object-cover ring-1 ring-white/80 shrink-0 mt-0.5">
                         <div class="max-w-[85%] bg-white/85 text-gray-800 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm leading-relaxed border border-white/70">
-                            你好，我是AI言情的小助手～你叫我綿綿就好，很高興見到你！你今天有什麼感受，請跟我聊聊吧。
+                            你好，我是綿綿～很高興見到你！今天我們一起學寫「心意卡」。你想寫給誰呢？是老師、同學，還是家人？😊
                         </div>
                     </div>
                     <div class="text-gray-400 text-xs text-center mt-3 leading-relaxed">
-                        想不到怎樣開始？可按下面的建議，或直接寫下你的問題。
+                        想不到怎樣開始？直接回答上面的問題就可以。
                     </div>`;
                 return;
             }
