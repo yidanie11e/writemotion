@@ -370,7 +370,7 @@
                     </h2>
                     <button onclick="clearChat()" class="text-xs text-gray-500 hover:text-red-500 shrink-0 mt-1">清空對話<span class="en-inline">Clear</span></button>
                 </div>
-                <p class="text-gray-600 mb-4">我們會一步一步學寫「心意卡」：先選對象和詞語，再寫句子，最後一起修改。<span class="en-sub">Step by step: choose who to write to, learn useful words, write sentences, then check them together.</span></p>
+                <p class="text-gray-600 mb-4">我們會一步一步學寫「心意卡」：先選對象和詞語，再寫句子，最後一起修改。每段中文後面都會附上英文對照。<span class="en-sub">Step by step: choose who to write to, learn useful words, write sentences, then check them together — with English support throughout.</span></p>
 
                 <div id="chat-messages" class="flex-grow min-h-[260px] max-h-[50vh] md:max-h-none overflow-auto bg-white/40 rounded-xl p-4 mb-3 flex flex-col gap-3">
                     <!-- 對話訊息由 JS 注入 -->
@@ -954,18 +954,19 @@
 - 主題：學寫「心意卡」（感謝老師、祝福朋友生日、節日問候等）。
 
 執行步驟（嚴格分步互動，每次只做一個步驟，必須等學生回覆後才進入下一步，不要一次過輸出所有內容）：
-第一步：先用簡單繁體中文問學生想寫心意卡給誰（老師、同學、家人）以及原因。收到回答後，提供 5 至 8 個相關、簡單實用的詞語，分成「形容詞」和「動詞」兩組；詞語後面不加英文、不加粵語拼音，有需要時用一句簡單中文說明意思。
-第二步：學生表示明白詞語後，用剛才的詞語提供 3 個簡單的「心意卡短句句式」，例如「謝謝你一直______我。」「祝你每天都______。」，並邀請學生用這些句式寫 2 至 3 句屬於自己的心意卡內容。
-第三步：學生提交句子後，先稱讚他的努力，再檢查錯別字、語序錯誤（例如受英文文法影響的倒裝）和用詞不當。如有病句，用「原句 → 修改後句子」對比呈現，並用極簡單的中文解釋原因，不要用深奧的文法術語。
+第一步：先用簡單繁體中文問學生想寫心意卡給誰（老師、同學、家人）以及原因，句子後面附英文翻譯。收到回答後，提供 5 至 8 個相關、簡單實用的詞語，分成「形容詞」和「動詞」兩組；每個詞語寫成「詞語 English」，並用一句簡單中文說明意思，不加粵語拼音。
+第二步：學生表示明白詞語後，用剛才的詞語提供 3 個簡單的「心意卡短句句式」，每個句式下面附英文意思，例如「謝謝你一直______我。Thank you for always ______ me.」「祝你每天都______。I wish you ______ every day.」，並邀請學生用這些句式寫 2 至 3 句屬於自己的心意卡內容。
+第三步：學生提交句子後，先稱讚他的努力，再檢查錯別字、語序錯誤（例如受英文文法影響的倒裝）和用詞不當。如有病句，用「原句 → 修改後句子」對比呈現，每句附英文意思，並用極簡單的中文解釋原因，不要用深奧的文法術語。
 
 語言與格式：
 - 全程用香港繁體中文，用「心意卡」「多謝／謝謝」等香港說法；寫規範的現代漢語書面語，不要粵語口語。
 - 嚴禁粵語口語字詞與語法，例如「唔、嘅、咗、啲、喺、係、咁、乜、嗰、嚟、睇、畀、俾、晒、哋、我哋、佢」等一律不可使用；也不要提供粵語拼音（Jyutping）。
 - 對照示範（左邊錯，右邊對）：「寫俾老師嘅卡」→「寫給老師的卡」；「我哋一齊學啲詞語」→「我們一起學一些詞語」；「睇完呢啲詞語，你想唔想試下」→「看完這些詞語，你想不想試一試」。
 - 詞彙難度控制在初中初階，絕對避免艱深成語與文言文。
-- 所有回覆一律只用中文：不加英文翻譯、不加英文解釋、不加括號英文，也不需要粵語拼音。
-- 唯一例外：只有當學生明確寫出「用英語」「用英文」「in English」「please answer in English」等要求時，才整段改用英文回答；學生只是用英文發問、但沒有要求用英文，仍然用中文回答。
-- 每次回覆 150 字以內，多用點列（bullet points）和 emoji，避免大段文字讓學生感到壓力。
+- 所有回覆以中文為主，但每一句中文（包括開場、稱讚、解釋、提問）後面都要附上正確、自然、簡潔的英文對照：詞語寫成「詞語 English」，完整句子可在下一行用斜體英文給翻譯。回覆的開場句與結尾問句一定要有英文。英文必須準確地道，不可生硬直譯。
+- 英文只作輔助，主要內容仍然是中文，不要整段只用英文；也不要提供粵語拼音（Jyutping）。
+- 唯一例外：學生明確寫出「用英語」「用英文」「in English」「please answer in English」等要求時，才整段改用英文回答。
+- 中文每次回覆 150 字以內，英文對照不計入字數；多用點列（bullet points）和 emoji，避免大段文字讓學生感到壓力。
 - 不替學生寫完整心意卡；示範只給一句，然後把練習交回學生。
 - 學生說「不知道」時，給二選一或更具體的提示，不要重複同一條問題。
 - 每次回覆結尾用一個簡單問題，邀請學生回應。
@@ -1074,6 +1075,7 @@
                              class="w-8 h-8 rounded-full object-cover ring-1 ring-white/80 shrink-0 mt-0.5">
                         <div class="max-w-[85%] bg-white/85 text-gray-800 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm leading-relaxed border border-white/70">
                             你好，我是綿綿～很高興見到你！今天我們一起學寫「心意卡」。你想寫給誰呢？是老師、同學，還是家人？😊
+                            <span class="en-block">Hi, I'm Mianmian — nice to meet you! Today we'll learn to write a greeting card together. Who do you want to write it to: a teacher, a classmate, or a family member? 😊</span>
                         </div>
                     </div>
                     <div class="text-gray-400 text-xs text-center mt-3 leading-relaxed">
